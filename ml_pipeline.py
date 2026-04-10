@@ -27,9 +27,34 @@ def load_and_preprocess():
     df['target'] = data.target
     
     print(f"Dataset Shape: {df.shape}")
-    print(f"Missing values: {df.isnull().sum().sum()}")
     
-    # EDA: Correlation Heatmap
+    # Check for missing values
+    missing = df.isnull().sum().sum()
+    print(f"Missing values: {missing}")
+    
+    # Check for duplicates
+    duplicates = df.duplicated().sum()
+    print(f"Duplicate entries: {duplicates}")
+    if duplicates > 0:
+        df = df.drop_duplicates()
+        print("Duplicates removed.")
+
+    # EDA: Visualizing key insights
+    # 1. Histograms for a few features
+    df.iloc[:, :4].hist(figsize=(10, 8), bins=20)
+    plt.suptitle("Histograms of First 4 Features")
+    plt.savefig('artifacts/histograms.png')
+    plt.close()
+
+    # 2. Boxplot for outlier detection
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(data=df.iloc[:, :10])
+    plt.xticks(rotation=45)
+    plt.title("Boxplot of First 10 Features (Outlier Detection)")
+    plt.savefig('artifacts/boxplot.png')
+    plt.close()
+    
+    # 3. Correlation Heatmap
     plt.figure(figsize=(12, 10))
     sns.heatmap(df.iloc[:, :10].corr(), annot=True, cmap='coolwarm')
     plt.title("Correlation Heatmap (First 10 features)")
@@ -40,10 +65,10 @@ def load_and_preprocess():
     X = df.drop('target', axis=1)
     y = df['target']
     
-    # Split data
+    # Split data (Phase 2: Split dataset into training and testing sets)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # Scaling
+    # Scaling (Phase 2: Scaling/normalization)
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
@@ -81,17 +106,25 @@ def train_models(X_train, y_train):
     return gs_lr.best_estimator_, gs_rf.best_estimator_, ensemble
 
 # Phase 4: Model Evaluation
-def evaluate_models(models, X_test, y_test):
+def evaluate_models(models, X_train, y_train, X_test, y_test):
     print("\n--- Phase 4: Model Evaluation & Comparison ---")
     results = {}
     for name, model in models.items():
+        # Metrics on test set
         y_pred = model.predict(X_test)
         acc = accuracy_score(y_test, y_pred)
         prec = precision_score(y_test, y_pred)
         rec = recall_score(y_test, y_pred)
         f1 = f1_score(y_test, y_pred)
-        results[name] = {'Accuracy': acc, 'Precision': prec, 'Recall': rec, 'F1': f1}
+        
+        # Cross-validation (Phase 4: Perform cross-validation to ensure generalization)
+        cv_scores = cross_val_score(model, X_train, y_train, cv=5)
+        cv_mean = cv_scores.mean()
+        
+        results[name] = {'Accuracy': acc, 'Precision': prec, 'Recall': rec, 'F1': f1, 'CV_Mean': cv_mean}
+        
         print(f"\nModel: {name}")
+        print(f"Test Accuracy: {acc:.4f}, CV Mean Accuracy: {cv_mean:.4f}")
         print(classification_report(y_test, y_pred))
         
         # Confusion Matrix
@@ -135,5 +168,5 @@ if __name__ == "__main__":
         'Ensemble (Voting)': ensemble_model
     }
     
-    evaluate_models(models_to_eval, X_test, y_test)
+    evaluate_models(models_to_eval, X_train, y_train, X_test, y_test)
     print("\nTraining and Evaluation complete. Artifacts saved in 'artifacts/'.")

@@ -8,35 +8,38 @@
 
 ## Phase 2: Data Preprocessing & Exploratory Data Analysis (EDA)
 - **Data Loading**: Loaded using `sklearn.datasets.load_breast_cancer`.
-- **Handling Missing Values**: The dataset had no missing values.
-- **Feature Engineering**: Features were scaled using `StandardScaler` to normalize the data.
-- **EDA**: Visualized correlation heatmaps and performed PCA (Dimensionality Reduction) to observe the data distribution in lower dimensions.
-- **Splitting**: Split the dataset into 80% training and 20% testing sets.
+- **Handling Missing Values & Duplicates**: Checked for null values and duplicate entries (none were found in this standard dataset).
+- **Outlier Detection**: Visualized outliers using boxplots for the first 10 features.
+- **Feature Engineering**: Features were scaled using `StandardScaler` to normalize the data, ensuring that features with larger ranges don't dominate the model.
+- **EDA**: Visualized histograms, correlation heatmaps, and performed PCA (Dimensionality Reduction) to observe the data distribution.
+- **Splitting**: Split the dataset into 80% training and 20% testing sets using `train_test_split`.
 
 ## Phase 3: Model Selection & Training
 - **Models Used**:
-    1. **Logistic Regression**: A linear model suitable for binary classification tasks.
-    2. **Random Forest Classifier**: An ensemble learning method based on decision trees.
-    3. **Voting Classifier (Ensemble)**: Combined Logistic Regression and Random Forest to improve robustness.
-- **Hyperparameter Tuning**: Performed Grid Search with Cross-Validation (5-fold) for both Logistic Regression (C parameter) and Random Forest (n_estimators, max_depth).
+    1. **Logistic Regression**: Selected for its efficiency and strong performance on linearly separable binary classification tasks.
+    2. **Random Forest Classifier**: Selected to capture non-linear relationships and provide robustness through ensemble learning.
+    3. **Voting Classifier (Ensemble)**: Combined both models to leverage their individual strengths.
+- **Hyperparameter Tuning**: Used `GridSearchCV` with 5-fold cross-validation to find optimal parameters:
+    - Logistic Regression: `C` (regularization strength).
+    - Random Forest: `n_estimators` and `max_depth`.
 
 ## Phase 4: Model Evaluation & Comparison
-- **Metrics**: Accuracy, Precision, Recall, and F1-score.
+- **Metrics**: Accuracy, Precision, Recall, and F1-score were used for evaluation.
+- **Cross-Validation**: Performed 5-fold cross-validation on all models to ensure they generalize well and avoid overfitting.
 - **Results**:
-    - **Logistic Regression**: F1-score ~ 0.98 (Best performing model in this case).
-    - **Random Forest**: F1-score ~ 0.97.
-    - **Ensemble Model**: F1-score ~ 0.97.
-- **Cross-Validation**: Performed to ensure the models generalize well to unseen data.
+    - **Logistic Regression**: Achieved high accuracy (~98%) and balanced Precision/Recall.
+    - **Random Forest**: Performance was slightly lower but very stable.
+    - **Best Model**: Logistic Regression was selected as the best-performing model based on the F1-score on the test set.
 
 ## Phase 5: Deployment & Interpretation
-- **Deployment**: The best-performing model (Logistic Regression) was converted into a deployable format using `joblib` and integrated into a **Streamlit** web application.
-- **Real-world Scenario**: This model can serve as a diagnostic tool for radiologists to assist in identifying cancerous tumors from FNA features, providing a "second opinion" or rapid screening.
+- **Deployment**: The best model and scaler were exported using `joblib` and integrated into a **Streamlit** web application (`app.py`).
+- **Real-world Scenario**: This application allows healthcare professionals to input diagnostic measurements and receive an immediate classification, assisting in early cancer detection.
 - **Limitations**:
-    - The model depends on the quality of feature extraction from images.
-    - It should not replace a doctor's final diagnosis but act as an auxiliary tool.
+    - Relies on manual feature extraction; deep learning could automate this.
+    - Performance may vary on datasets from different clinical settings.
 - **Future Improvements**:
-    - Integration of Deep Learning models (CNNs) directly on digitized images.
-    - Incorporation of more diverse patient demographics.
+    - Adding support for image-based inputs using Convolutional Neural Networks (CNNs).
+    - Incorporating more diverse patient data for better generalization.
 
 ---
 **Prepared by: Junie (AI Agent)**
