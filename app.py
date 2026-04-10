@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import plotly.graph_objects as go
+import os
 from sklearn.datasets import load_breast_cancer
 
 # Page Config
@@ -147,7 +148,7 @@ if page == "Home & Prediction":
                     marker_color=['#dc3545', '#28a745']
                 ))
                 fig.update_layout(height=300, margin=dict(l=20, r=20, t=20, b=20))
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
 elif page == "Model Performance":
     st.header("Model Evaluation Metrics")
@@ -172,13 +173,13 @@ elif page == "EDA Visualizations":
     viz_choice = st.selectbox("Select Visualization", ["PCA Plot", "Correlation Heatmap", "Histograms", "Boxplots"])
     
     if viz_choice == "PCA Plot":
-        st.image('artifacts/pca_plot.png', use_container_width=True)
+        st.image('artifacts/pca_plot.png', width="stretch")
     elif viz_choice == "Correlation Heatmap":
-        st.image('artifacts/correlation_heatmap.png', use_container_width=True)
+        st.image('artifacts/correlation_heatmap.png', width="stretch")
     elif viz_choice == "Histograms":
-        st.image('artifacts/histograms.png', use_container_width=True)
+        st.image('artifacts/histograms.png', width="stretch")
     elif viz_choice == "Boxplots":
-        st.image('artifacts/boxplot.png', use_container_width=True)
+        st.image('artifacts/boxplot.png', width="stretch")
 
 st.sidebar.markdown("---")
 st.sidebar.info("Developed for Machine Learning Assignment #2. Dataset: Wisconsin Breast Cancer (Diagnostic).")
