@@ -35,21 +35,40 @@ st.markdown("""
     }
     .stTabs [data-baseweb="tab-list"] {
         gap: 24px;
-        background-color: transparent;
+        background-color: #ffffff;
+        padding: 10px 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
     }
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
+        height: 60px;
         white-space: pre-wrap;
-        background-color: white;
-        border-radius: 10px 10px 0 0;
-        gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        border: 1px solid #e1e4e8;
+        background-color: #f8fafc;
+        border-radius: 10px;
+        padding: 10px 25px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        color: #475569;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: #f1f5f9;
+        border-color: #cbd5e1;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #007bff !important;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
         color: white !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    .slider-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 15px;
     }
     .prediction-card {
         padding: 2.5rem;
@@ -139,8 +158,8 @@ if page == "Home & Prediction":
     st.subheader("Patient Diagnostic Parameters")
     st.info("Adjust the sliders in the tabs below to match the patient's diagnostic data.")
 
-    # Input Tabs
-    tab1, tab2, tab3 = st.tabs(["Mean", "Standard Error", "Worst"])
+    # Input Tabs with Icons
+    tab1, tab2, tab3 = st.tabs(["📊 Mean Features", "📉 Standard Error", "🔍 Worst Case (Max)"])
     
     inputs = {}
     means = data.data.mean(axis=0)
@@ -148,22 +167,34 @@ if page == "Home & Prediction":
     maxs = data.data.max(axis=0)
 
     with tab1:
+        st.markdown('<div class="slider-card">', unsafe_allow_html=True)
+        st.markdown('<h4 style="color: #334155; margin-top: 0;">Mean Values of Cell Nuclei</h4>', unsafe_allow_html=True)
         cols = st.columns(2)
         for i, f_name in enumerate(categories["Mean Features"]):
             idx = list(feature_names).index(f_name)
-            inputs[f_name] = cols[i % 2].slider(f_name.replace("mean", "").strip().title(), float(mins[idx]), float(maxs[idx]), float(means[idx]))
+            display_name = f_name.replace("mean", "").strip().title()
+            inputs[f_name] = cols[i % 2].slider(f"📏 {display_name}", float(mins[idx]), float(maxs[idx]), float(means[idx]), help=f"Average {display_name.lower()} across cell nuclei")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with tab2:
+        st.markdown('<div class="slider-card">', unsafe_allow_html=True)
+        st.markdown('<h4 style="color: #334155; margin-top: 0;">Standard Error of Measurements</h4>', unsafe_allow_html=True)
         cols = st.columns(2)
         for i, f_name in enumerate(categories["Standard Error Features"]):
             idx = list(feature_names).index(f_name)
-            inputs[f_name] = cols[i % 2].slider(f_name.replace("error", "").strip().title(), float(mins[idx]), float(maxs[idx]), float(means[idx]))
+            display_name = f_name.replace("error", "").strip().title()
+            inputs[f_name] = cols[i % 2].slider(f"⚖️ {display_name}", float(mins[idx]), float(maxs[idx]), float(means[idx]), help=f"Standard error of {display_name.lower()}")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with tab3:
+        st.markdown('<div class="slider-card">', unsafe_allow_html=True)
+        st.markdown('<h4 style="color: #334155; margin-top: 0;">"Worst" (Largest) Case Measurements</h4>', unsafe_allow_html=True)
         cols = st.columns(2)
         for i, f_name in enumerate(categories["Worst Features"]):
             idx = list(feature_names).index(f_name)
-            inputs[f_name] = cols[i % 2].slider(f_name.replace("worst", "").strip().title(), float(mins[idx]), float(maxs[idx]), float(means[idx]))
+            display_name = f_name.replace("worst", "").strip().title()
+            inputs[f_name] = cols[i % 2].slider(f"🔺 {display_name}", float(mins[idx]), float(maxs[idx]), float(means[idx]), help=f"Largest {display_name.lower()} measured")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     input_df = pd.DataFrame([inputs])
 
