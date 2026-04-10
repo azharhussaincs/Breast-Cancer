@@ -9,7 +9,7 @@ from sklearn.datasets import load_breast_cancer
 # Page Config
 st.set_page_config(
     page_title="Breast Cancer Diagnostics",
-    page_icon="🩺",
+    page_icon="🎗️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -17,32 +17,83 @@ st.set_page_config(
 # Custom CSS for Professional Look
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
     .main {
-        background-color: #f8f9fa;
+        background-color: #f0f2f6;
     }
-    .stButton>button {
-        width: 100%;
-        border-radius: 5px;
-        height: 3em;
-        background-color: #007bff;
-        color: white;
-        font-weight: bold;
+    .stApp {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     }
-    .stButton>button:hover {
-        background-color: #0056b3;
-        color: white;
+    div[data-testid="stSidebarNav"] {
+        background-color: white;
+        border-radius: 0 20px 20px 0;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+        background-color: transparent;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: white;
+        border-radius: 10px 10px 0 0;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border: 1px solid #e1e4e8;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #007bff !important;
+        color: white !important;
     }
     .prediction-card {
-        padding: 2rem;
-        border-radius: 10px;
+        padding: 2.5rem;
+        border-radius: 15px;
         background-color: white;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         text-align: center;
+        border-left: 10px solid;
+        margin-top: 1rem;
     }
-    .metric-container {
-        display: flex;
-        justify-content: space-around;
-        margin-bottom: 2rem;
+    .benign { border-left-color: #28a745; }
+    .malignant { border-left-color: #dc3545; }
+    
+    .stButton>button {
+        width: 100%;
+        border-radius: 8px;
+        height: 3.5em;
+        background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+        color: white;
+        font-weight: 700;
+        border: none;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .stButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        color: white;
+    }
+    .metric-card {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        text-align: center;
+        border-bottom: 4px solid #007bff;
+    }
+    .section-header {
+        color: #1e3a8a;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -65,11 +116,12 @@ if model is None:
     st.stop()
 
 # Header Section
-st.title("🩺 Breast Cancer Diagnostic Assistant")
+st.markdown('<h1 style="color: #1e3a8a; font-size: 2.5rem; font-weight: 800; margin-bottom: 0;">🎗️ Breast Cancer Diagnostic Assistant</h1>', unsafe_allow_html=True)
 st.markdown("""
-    Welcome to the **Professional Breast Cancer Diagnostic Tool**. This application uses a high-accuracy Logistic Regression model 
-    to assist in the classification of breast masses as **Malignant** or **Benign** based on FNA digitized image features.
-""")
+    <p style="font-size: 1.1rem; color: #4b5563; margin-bottom: 2rem;">
+        Professional clinical tool for breast mass classification using high-precision machine learning.
+    </p>
+""", unsafe_allow_html=True)
 
 # Sidebar Navigation
 st.sidebar.header("Navigation")
@@ -132,11 +184,19 @@ if page == "Home & Prediction":
             # Display Result
             result = "Benign" if prediction[0] == 1 else "Malignant"
             color = "#28a745" if result == "Benign" else "#dc3545"
+            card_class = "benign" if result == "Benign" else "malignant"
+            icon = "✅" if result == "Benign" else "⚠️"
             
             st.markdown(f"""
-                <div class="prediction-card">
-                    <h2 style="color: {color};">{result}</h2>
-                    <p>Based on the provided parameters, the model predicts a <b>{result}</b> tumor.</p>
+                <div class="prediction-card {card_class}">
+                    <h1 style="color: {color}; margin-top: 0;">{icon} {result}</h1>
+                    <p style="font-size: 1.2rem; color: #4b5563;">
+                        The model predicts a <b>{result}</b> tumor with <b>{prob[prediction[0]]*100:.1f}%</b> confidence.
+                    </p>
+                    <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 1.5rem 0;">
+                    <p style="font-size: 0.9rem; color: #6b7280; font-style: italic;">
+                        * This is an AI-assisted tool and should not replace professional medical diagnosis.
+                    </p>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -151,15 +211,20 @@ if page == "Home & Prediction":
                 st.plotly_chart(fig, width="stretch")
 
 elif page == "Model Performance":
-    st.header("Model Evaluation Metrics")
+    st.markdown('<h1 class="section-header">Model Evaluation Metrics</h1>', unsafe_allow_html=True)
     st.write("The current best model is a **Logistic Regression** model optimized with GridSearchCV.")
     
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Accuracy", "97.4%")
-    col2.metric("F1-Score", "0.98")
-    col3.metric("Precision", "0.97")
-    col4.metric("Recall", "0.99")
+    with col1:
+        st.markdown('<div class="metric-card"><h3>97.4%</h3><p>Accuracy</p></div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="metric-card"><h3>0.98</h3><p>F1-Score</p></div>', unsafe_allow_html=True)
+    with col3:
+        st.markdown('<div class="metric-card"><h3>0.97</h3><p>Precision</p></div>', unsafe_allow_html=True)
+    with col4:
+        st.markdown('<div class="metric-card"><h3>0.99</h3><p>Recall</p></div>', unsafe_allow_html=True)
     
+    st.markdown("---")
     st.subheader("Confusion Matrix")
     if os.path.exists('artifacts/cm_Logistic_Regression.png'):
         st.image('artifacts/cm_Logistic_Regression.png', caption="Confusion Matrix for Logistic Regression")
@@ -167,19 +232,25 @@ elif page == "Model Performance":
         st.warning("Confusion matrix artifact not found. Please run ml_pipeline.py first.")
 
 elif page == "EDA Visualizations":
-    st.header("Exploratory Data Analysis")
+    st.markdown('<h1 class="section-header">Exploratory Data Analysis</h1>', unsafe_allow_html=True)
     st.write("Visual insights from the training dataset used to develop the model.")
     
     viz_choice = st.selectbox("Select Visualization", ["PCA Plot", "Correlation Heatmap", "Histograms", "Boxplots"])
     
+    st.markdown('<div class="prediction-card" style="padding: 1rem; border-left: none;">', unsafe_allow_html=True)
     if viz_choice == "PCA Plot":
         st.image('artifacts/pca_plot.png', width="stretch")
+        st.info("PCA shows how the data points are distributed in a 2D space, helping identify clusters.")
     elif viz_choice == "Correlation Heatmap":
         st.image('artifacts/correlation_heatmap.png', width="stretch")
+        st.info("The heatmap shows relationships between features. Highly correlated features can often be simplified.")
     elif viz_choice == "Histograms":
         st.image('artifacts/histograms.png', width="stretch")
+        st.info("Histograms show the frequency distribution of individual features.")
     elif viz_choice == "Boxplots":
         st.image('artifacts/boxplot.png', width="stretch")
+        st.info("Boxplots are useful for identifying outliers and understanding the spread of data.")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
 st.sidebar.info("Developed for Machine Learning Assignment #2. Dataset: Wisconsin Breast Cancer (Diagnostic).")
