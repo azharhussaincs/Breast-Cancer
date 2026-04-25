@@ -1,4 +1,4 @@
-name: Streamlit App CI
+name: Deploy Streamlit App
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,15 +22,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-
-      - name: Check Streamlit installation
+      - name: Run Pipeline to Ensure Artifacts
         run: |
-          python -c "import streamlit; print('Streamlit installed successfully')"
+          python ml_pipeline.py
 
-      - name: Syntax check
+      - name: Verify App Compiles
         run: |
           python -m py_compile app.py
+
+      - name: Summary
+        run: |
+          echo "Streamlit app is ready for deployment."
+          echo "To host this app, connect your GitHub repository to [Streamlit Community Cloud](https://share.streamlit.io/)."
