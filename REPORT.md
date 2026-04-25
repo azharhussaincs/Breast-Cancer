@@ -46,5 +46,4 @@
     - Incorporating more diverse patient data for better generalization.
 
 ---
-**Prepared by: Junie (AI Agent)**
 **Date: 10th April 2026**
